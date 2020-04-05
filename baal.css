@@ -14,7 +14,31 @@
     flex-direction: column;
 }
 
+.application_control_element {
+    height: 60px;
+    display: flex;
+}
+
+.application_control_element input {
+    height: 2em;
+    margin-top: 5px;
+    border: 1px solid;
+    max-width: 8em;
+}
+
+.application_control_element .display {
+    height: 2em;
+    margin-top: 5px;
+    min-width: 20%;
+    border: 1px solid;
+}
+
+.application_control_element .label {
+    margin-right: 10px;
+}
+
 #canvas_container {
+    margin-left: 20px;
     display: flex;
 }
 

@@ -14,7 +14,32 @@
       <p id="error_reporter"></p>
       <div id="application_container">
 	<div id="application_controls">
-	  Controlls here!
+	  <div class="application_control_element">
+	    <p class="label">
+	      Rekkevidde bålpinne:
+	    </p>
+	    <input type="number" id="range_selector"></input>
+	  </div>
+	  <div class="application_control_element">
+	    <div class="application_control_element">
+	    <p class="label">
+	      Minimum avstand:
+	    </p>
+	    <input type="number" id="social_distance_selector"></input>
+	  </div>
+	  </div>
+	  <div class="application_control_element">
+	    <p class="label">
+	      Maksimum personer rundt bålet:
+	    </p>
+	    <p class="display" id="maximum_people_display"></p>
+	  </div>
+	  <div class="application_control_element">
+	    <p class="label">
+	      Avstand mellom personene:
+	    </p>
+	    <p class="display" id="result_distance_display"></p>
+	  </div>
 	</div>
 	<div id="canvas_container">
 	  <canvas id="main_canvas" width="500px" height="500px">
