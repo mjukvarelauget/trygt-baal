@@ -1,0 +1,24 @@
+/* 
+ * Based on the meyer reset, found at
+ * http://meyerweb.com/eric/tools/css/reset/
+ */
+
+body, h1, h2, h3, h4, h5, h6, div, span, a, i {
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+body, div, span, a, i {
+    font-size: 100%;
+    font: inherit;
+    line-height: 1;
+}
+
+div, canvas{
+    box-sizing: border-box;
+}
+
+ol, ul {
+    list-style: none;
+}
