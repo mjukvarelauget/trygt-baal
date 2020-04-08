@@ -8,21 +8,28 @@ let baal_rerender;
     const canvasContextLineWidth = 3;
     const campfireCenter = {x: 250, y: 250}; // pixels
     const campfireRadius = 0.50; // meters
-    const zoomFactor = 100; // pixels per meter
 
     const personRadius = 0.2 // meters
 
-    const canvasWidth  = 500; // pixels
-    const canvasHeight = 500; // pixels
+    const largeCanvasWidth  = 500; // pixels
+    const largeCanvasHeight = 500; // pixels
+
+    // TODO: make canvas size and app layout responsive
+    const mobileCanvasWidth  = 300; // pixels
+    const mobileCanvasHeight = 500; // pixels
     
     const defaultSocialDistance = 1; // meters
     const defaultStickRange = 2; // meters
+    const defaultZoomFactor = 100; // pixels per meter
 
     // Internal state
     let socialDistance = defaultSocialDistance; // meters
-    let stickRange = defaultStickRange; // meters
-    let pointList = [] // rectangular coordinates in meters
-
+    let stickRange     = defaultStickRange; // meters
+    let zoomFactor     = defaultZoomFactor; // pixelsPerMeter
+    let pointList      = [] // rectangular coordinates in meters
+    let canvasWidth    = largeCanvasWidth; // pixels
+    let canvasHeight   = largeCanvasHeight; // pixels
+    
     // Result values
     let numParticipants = NaN;
     let resultDistance = NaN;
@@ -32,6 +39,7 @@ let baal_rerender;
     let canvasContext = undefined;
     let stickRangeElementHandle = undefined;
     let socialDistanceElementHandle = undefined;
+    let zoomElementHandle = undefined;
 
     // Outputs
     let errorReporterElementHandle = undefined;
@@ -79,9 +87,11 @@ let baal_rerender;
 	console.log(stickRangeElementHandle);
 	stickRangeElementHandle.addEventListener("input", stickRangeUpdateHandler);
 	socialDistanceElementHandle.addEventListener("input", socialDistanceUpdateHandler);
-
+	zoomElementHandle.addEventListener("input", zoomUpdateHandler);
+	
 	stickRangeElementHandle.value = 2;
 	socialDistanceElementHandle.value = 1;
+	zoomElementHandle.value = 100;
     }
     
     function setupInputElementHandles() {
@@ -95,6 +105,12 @@ let baal_rerender;
 	if(socialDistanceElementHandle == undefined) {
 	    console.log("Social distance element not found");
 	    displayError("Social distance element not found");
+	}
+
+	zoomElementHandle = document.querySelector("#zoom_selector");
+	if(zoomElementHandle == undefined) {
+	    console.log("Zoom element not found");
+	    displayError("Zoom element not found");
 	}
     }
 
@@ -122,7 +138,10 @@ let baal_rerender;
 	    displayError("Canvas element not found");
 	    return;
 	}
-	
+
+	canvasElement.width  = canvasWidth;
+	canvasElement.height = canvasHeight;
+
 	canvasContext = canvasElement.getContext("2d");
 	canvasContext.lineWidth = canvasContextLineWidth;
     }
@@ -134,7 +153,11 @@ let baal_rerender;
     }
 
     function socialDistanceUpdateHandler(e) {
-	console.log(socialDistanceElementHandle);
+	updateState();
+	render();
+    }
+
+    function zoomUpdateHandler(e) {
 	updateState();
 	render();
     }
@@ -162,10 +185,15 @@ let baal_rerender;
 	}
 	
 	socialDistance = Number(socialDistanceElementHandle.value);
-	console.log(`The reported social distance is ${socialDistance}`);
 	if(isNaN(socialDistance) || socialDistance < 0) {
 	    socialDistance = defaultSocialDistance;
 	    socialDistanceElementHandle.value = String(defaultSocialDistance);
+	}
+
+	zoomFactor = Number(zoomElementHandle.value);
+	if(isNaN(zoomFactor) || zoomFactor < 0) {
+	    zoomFactor = defaultZoomFactor;
+	    zoomElementHandle.value = String(defaultZoomFactor);
 	}
     }
 
@@ -237,10 +265,10 @@ let baal_rerender;
     }
     
     function renderMainCanvas() {
-
 	clearCanvas();
 	
 	// First the campfire in the center
+	canvasContext.strokeStyle = "#FF0000";
 	canvasContext.beginPath();
 	canvasContext.arc(
 	    campfireCenter.x,
@@ -248,6 +276,7 @@ let baal_rerender;
 	    metersToPixels(campfireRadius), 0, 2 * Math.PI);
 	canvasContext.closePath();
 	canvasContext.stroke();
+	canvasContext.strokeStyle = "#000000";
 
 	// Point coordinates are allready adjusted for the center and in pixels
 	for(let i = 0; i < pointList.length; i++) {
