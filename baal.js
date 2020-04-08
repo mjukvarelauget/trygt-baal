@@ -6,35 +6,58 @@ let baal_rerender;
 // The closure based approach is a little weird
 {
     const canvasContextLineWidth = 3;
-    const campfireCenter = {x: 250, y: 250};
+    const campfireCenter = {x: 250, y: 250}; // pixels
+    const campfireRadius = 0.50; // meters
+    const zoomFactor = 100; // pixels per meter
+
+    const personRadius = 0.2 // meters
+
+    const canvasWidth  = 500; // pixels
+    const canvasHeight = 500; // pixels
+    
+    const defaultSocialDistance = 1; // meters
+    const defaultStickRange = 2; // meters
 
     // Internal state
-    let sliderElement = undefined;
-    let socialDistance = 1; //meters
-    let stickRange = 2; //meters
-    let pointList = []
+    let socialDistance = defaultSocialDistance; // meters
+    let stickRange = defaultStickRange; // meters
+    let pointList = [] // rectangular coordinates in meters
 
     // Result values
     let numParticipants = NaN;
     let resultDistance = NaN;
 
     // Handles
+    // Inputs
     let canvasContext = undefined;
     let stickRangeElementHandle = undefined;
     let socialDistanceElementHandle = undefined;
+
+    // Outputs
     let errorReporterElementHandle = undefined;
+    let numParticipantsElementHandle = undefined;
+    let resultDistanceElementHandle = undefined;
 
     // Public API initialisation
     baal_rerender = () => {
 	render();
     }
-    
+  
     // Setup on window load
     window.onload = (e) => {
 	initialSetup();
 	updateState();
 	render();
     };
+    
+    //*** Unit conversions ***
+    function metersToPixels(numMeters) {
+	return numMeters*zoomFactor;
+    }
+
+    function pixelsToMeters(numPixels) {
+	return Math.ceil(numMeters/zoomFactor);
+    }
 
     //*** Setup methods ***
     function initialSetup() {
@@ -53,8 +76,9 @@ let baal_rerender;
     }
     
     function initInputElements() {
-	stickRangeElementHandle.onclick = stickRangeUpdateHandler;
-	socialDistanceElementHandle.onclick = socialDistanceUpdateHandler;
+	console.log(stickRangeElementHandle);
+	stickRangeElementHandle.addEventListener("input", stickRangeUpdateHandler);
+	socialDistanceElementHandle.addEventListener("input", socialDistanceUpdateHandler);
 
 	stickRangeElementHandle.value = 2;
 	socialDistanceElementHandle.value = 1;
@@ -76,7 +100,19 @@ let baal_rerender;
 
         
     function setupOutputElementHandles() {
-	
+	errorReporterElementHandle = document.querySelector("#error_reporter");
+	numParticipantsElementHandle = document.querySelector("#maximum_people_display");
+	resultDistanceElementHandle = document.querySelector("#result_distance_display");
+
+	if(errorReporterElementHandle == undefined) {
+	    console.log("Error element not found");
+	}
+	if(numParticipantsElementHandle == undefined) {
+	    console.log("Max participant element not found");
+	}
+	if(resultDistanceElementHandle == undefined) {
+	    console.log("Social distance element not found");
+	}
     }
 
     function setupCanvas() {
@@ -93,53 +129,145 @@ let baal_rerender;
 
     //*** Event handlers ***
     function stickRangeUpdateHandler(e) {
-	stickRange = stickRangeElementHandle.valueAsNumber;
 	updateState();
 	render();
     }
 
     function socialDistanceUpdateHandler(e) {
-	socialDistance = socialDistanceElementHandle.valueAsNumber;
+	console.log(socialDistanceElementHandle);
 	updateState();
 	render();
     }
 
     //*** State update***
     function updateState(){
-	generatePoints();
-	updateOutputValues();
+	clearErrors();
+	updateInputValues();
+
+	let newNumParticipants, newResultDistance;
+	[newNumParticipants, newResultDistance] = generatePoints();
+
+	updateOutputValues(newNumParticipants, newResultDistance);
+    }
+
+    // TODO: fix input validation
+    // TODO: decide upon how values are submitted
+    // TODO: make this function update different elements individually,
+    //       for instance by taking a parameter. Could also make indiv. objects
+    function updateInputValues() {
+	stickRange = Number(stickRangeElementHandle.value);
+	if(isNaN(stickRange) || stickRange < 0) {
+	    stickRange = defaultStickRange;
+	    stickRangeElementHandle.value = String(defaultStickRange);
+	}
+	
+	socialDistance = Number(socialDistanceElementHandle.value);
+	console.log(`The reported social distance is ${socialDistance}`);
+	if(isNaN(socialDistance) || socialDistance < 0) {
+	    socialDistance = defaultSocialDistance;
+	    socialDistanceElementHandle.value = String(defaultSocialDistance);
+	}
     }
 
     function generatePoints() {
+	let totalRadius = stickRange; // Can be extened to include the campfire radius
+	let totalSocialDistance = socialDistance // Can be extended to include person radius
 	console.log(
-	    `Distance is ${stickRange} meters, and sticks are ${socialDistance} meters`
+	    `Distance is ${totalRadius} meters, and sticks are ${socialDistance} meters`
 	);
+	let [maxAngle, numPeople] = findMaximumAngle(totalSocialDistance, totalRadius);
+	console.log(
+	    `The max angle is ${maxAngle} radians, and with it, the campfire can fit ` +
+		`${numPeople} people`
+	);
+
+	// Silently fail. This is BAD, but should be handled in input validation
+	// TODO: Fix input validation to avoid this check
+	if(numPeople === Infinity) {
+	    return
+	}
+	
+	// We now need to generate all the points
+	pointList = []; // clear the old points
+	for(let i = 0; i < numPeople; i++) {
+	    let currentAngle = i*maxAngle;
+	    pointList.push(
+		{
+		    x: (campfireCenter.x -
+			metersToPixels(totalRadius*Math.cos(currentAngle))),
+		    y: (campfireCenter.y -
+			metersToPixels(totalRadius*Math.sin(currentAngle)))
+		}
+	    );
+	}
+
+	// Then we calculate what the average distance between people will be
+	let avgDistance =
+	    totalRadius * Math.sqrt((1-Math.cos(maxAngle))**2 + Math.sin(maxAngle)**2);
+	
+	// Then we return the output values
+	return [numPeople, avgDistance];
     }
 
-    function updateOutputValues(newResultDistance, newNumParicipants) {
+    function updateOutputValues(newNumParticipants, newResultDistance) {
+	if(isNaN(newResultDistance) || newNumParticipants === Infinity) {
+	    displayError("Invalid results. Maybe one of the inputs were set to 0?");
+	    return
+	}
 	
+	numParticipants = newNumParticipants;
+	socialDistance = newResultDistance;
+	
+	numParticipantsElementHandle.innerHTML = String(numParticipants);
+	resultDistanceElementHandle.innerHTML = String(socialDistance.toFixed(3));
+    }
+
+    //*** Quick maths ***
+    function findMaximumAngle(distance, radius) {
+	let minimumAngle = Math.acos(1 - 0.5*(distance/radius)**2);
+	let numberOfPeople = Math.floor((2*Math.PI) / minimumAngle);
+	let maximumAngle = (2*Math.PI) / numberOfPeople;
+
+	return [maximumAngle, numberOfPeople];
     }
     
     //*** Rendering methods ***
     function render() {
-	renderOutputDisplays();
 	renderMainCanvas();
     }
     
     function renderMainCanvas() {
+
+	clearCanvas();
 	
+	// First the campfire in the center
+	canvasContext.beginPath();
+	canvasContext.arc(
+	    campfireCenter.x,
+	    campfireCenter.y,
+	    metersToPixels(campfireRadius), 0, 2 * Math.PI);
+	canvasContext.closePath();
+	canvasContext.stroke();
+
+	// Point coordinates are allready adjusted for the center and in pixels
+	for(let i = 0; i < pointList.length; i++) {
+	    canvasContext.beginPath();
+	    canvasContext.arc(
+		pointList[i].x,
+		pointList[i].y,
+		metersToPixels(personRadius),
+		0, 2 * Math.PI);
+	    canvasContext.closePath();
+	    canvasContext.stroke();
+	}
     }
 
-    function renderOutputDisplays() {
-
-    }
-    
-    function drawRegularPolygon() {
-	
+    function clearCanvas() {
+	canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
     }
     
     //Draws a triangle for every consecutive triplet of points in pointList
-    //Excess ponts are discarded
+    //Excess ponts are discarded. Currently not in use, just an example
     function drawTriangles(pointList, canvasContext) {
 	let numTriangles = (pointList.length - (pointList.length % 3)) / 3;
 	let tripletIndex = 0;
@@ -159,7 +287,10 @@ let baal_rerender;
     // If this is going to be usefull, it needs some way of displaying or
     // prioritising error messages
     function displayError(errorMessage) {
-	errorReporterElementHandle = document.querySelector("#error_reporter");
 	errorReporterElementHandle.innerHTML = "Error: " + errorMessage;
+    }
+
+    function clearErrors() {
+	errorReporterElementHandle.innerHTML = "";
     }
 }

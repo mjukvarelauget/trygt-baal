@@ -23,18 +23,20 @@
     height: 2em;
     margin-top: 5px;
     border: 1px solid;
-    max-width: 8em;
+    text-align: right;
+    width: 30%;
 }
 
 .application_control_element .display {
     height: 2em;
-    margin-top: 5px;
-    min-width: 20%;
     border: 1px solid;
+    width: 30%;
+    text-align: right;
 }
 
 .application_control_element .label {
     margin-right: 10px;
+    width: 70%;
 }
 
 #canvas_container {
