@@ -1,60 +1,60 @@
 <head>
-	<!-- Note: to encode as utf-8, the text editor must be configured to do so-->
-	<meta charset="utf-8">
-	<title> Bålgenerator </title>
-	<script type="text/javascript" src="scripts/baal.js"></script>
-	<link rel="stylesheet" type="text/css" href="styles/reset.css">
-	<link rel="stylesheet" type="text/css" href="styles/baal.css">
+  <!-- Note: to encode as utf-8, the text editor must be configured to do so-->
+  <meta charset="utf-8">
+  <title> Bålgenerator </title>
+  <script type="text/javascript" src="scripts/baal.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/reset.css">
+  <link rel="stylesheet" type="text/css" href="styles/baal.css">
 </head>
 
 <body>
-	<div id="central_column">
-		<main>
-			<h1> Snaustrindas trygg-bål-generator </h1>
-			<p id="error_reporter"></p>
-			<div id="application_container">
-				<div id="application_controls">
-					<div class="application_control_element">
-						<p class="label">
-							Rekkevidde bålpinne(meter):
-						</p>
-						<input id="range_selector"></input>
-					</div>
-					<div class="application_control_element">
-						<div class="application_control_element">
-							<p class="label">
-								Minimum avstand(meter):
-							</p>
-							<input id="social_distance_selector"></input>
-						</div>
-					</div>
-					<div class="application_control_element">
-						<div class="application_control_element">
-							<p class="label">
-								Målestokk (piksler/meter):
-							</p>
-							<input id="zoom_selector"></input>
-						</div>
-					</div>
-					<div class="application_control_element">
-						<p class="label">
-							Maksimum personer rundt bålet:
-						</p>
-						<p class="display" id="maximum_people_display"></p>
-					</div>
-					<div class="application_control_element">
-						<p class="label">
-							Avstand mellom personene(meter):
-						</p>
-						<p class="display" id="result_distance_display"></p>
-					</div>
-				</div>
-				<div id="canvas_container">
-					<canvas id="main_canvas">
-						This browser does not support canvas, sorry!
-					</canvas>
-				</div>
-			</div>
-		</main>
+  <div id="central_column">
+    <main>
+      <h1> Snaustrindas trygg-bål-generator </h1>
+      <p id="error_reporter"></p>
+      <div id="application_container">
+	<div id="application_controls">
+	  <div class="application_control_element">
+	    <p class="label">
+	      Rekkevidde bålpinne(meter):
+	    </p>
+	    <input id="range_selector"></input>
+	  </div>
+	  <div class="application_control_element">
+	    <div class="application_control_element">
+	      <p class="label">
+		Minimum avstand(meter):
+	      </p>
+	      <input id="social_distance_selector"></input>
+	    </div>
+	  </div>
+	  <div class="application_control_element">
+	    <div class="application_control_element">
+	      <p class="label">
+		Målestokk (piksler/meter):
+	      </p>
+	      <input id="zoom_selector"></input>
+	    </div>
+	  </div>
+	  <div class="application_control_element">
+	    <p class="label">
+	      Maksimum personer rundt bålet:
+	    </p>
+	    <p class="display" id="maximum_people_display"></p>
+	  </div>
+	  <div class="application_control_element">
+	    <p class="label">
+	      Avstand mellom personene(meter):
+	    </p>
+	    <p class="display" id="result_distance_display"></p>
+	  </div>
 	</div>
+	<div id="canvas_container">
+	  <canvas id="main_canvas">
+	    This browser does not support canvas, sorry!
+	  </canvas>
+	</div>
+      </div>
+    </main>
+  </div>
 </body>
