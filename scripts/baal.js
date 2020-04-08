@@ -108,10 +108,10 @@ let baal_rerender;
     {
     	campfireRadiusElementHandle = document.querySelector("#radius_selector");
     	if(campfireRadiusElementHandle == undefined)
-		{
-			console.log("Campfire radius element not found");
-			displayError("Campfire radius element not found");
-		}
+	{
+	    console.log("Campfire radius element not found");
+	    displayError("Campfire radius element not found");
+	}
 
         stickRangeElementHandle = document.querySelector("#range_selector");
         if (stickRangeElementHandle == undefined)
@@ -174,11 +174,11 @@ let baal_rerender;
     }
 
     //*** Event handlers ***
-	function campfireRadiusUpdateHandler(e)
-	{
-		updateState();
-		render();
-	}
+    function campfireRadiusUpdateHandler(e)
+    {
+	updateState();
+	render();
+    }
 
     function stickRangeUpdateHandler(e)
     {
@@ -218,10 +218,10 @@ let baal_rerender;
     {
     	campfireRadius = Number(campfireRadiusElementHandle.value);
     	if(isNaN(campfireRadius) || campfireRadius < 0)
-		{
-			campfireRadius = defaultCampfireRadius;
-			campfireRadiusElementHandle.value = String(defaultCampfireRadius);
-		}
+	{
+	    campfireRadius = defaultCampfireRadius;
+	    campfireRadiusElementHandle.value = String(defaultCampfireRadius);
+	}
 
         stickRange = Number(stickRangeElementHandle.value);
         if (isNaN(stickRange) || stickRange < 0)
@@ -255,7 +255,7 @@ let baal_rerender;
         let [maxAngle, numPeople] = findMaximumAngle(totalSocialDistance, totalRadius);
         console.log(
             `The max angle is ${maxAngle} radians, and with it, the campfire can fit ` +
-            `${numPeople} people`
+		`${numPeople} people`
         );
 
         // Silently fail. This is BAD, but should be handled in input validation
