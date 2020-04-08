@@ -1,6 +1,8 @@
 #central_column {
     margin-left: 20%;
     margin-right: 20%;
+    display: flex;
+    justify-content: center;
 }
 
 
@@ -34,7 +36,7 @@
 }
 
 .application_control_element .label {
-    margin-right: 10px;
+    margin-right: 2em;
     width: 70%;
 }
 
